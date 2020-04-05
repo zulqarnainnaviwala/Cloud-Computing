@@ -1,0 +1,98 @@
+version: "3.3"
+
+services:
+  api:
+    build: ./backend
+    environment:
+      - CONNECTION_STRING=postgres://postgresql:MAJUCLOUD@db/maju-cloud-postgresql
+      - CONNECTION_STRING2=mysql://admin:MAJUCLOUD@db2/maju-cloud-db
+      - CONNECTION_STRING3=mariadb://admin:MAJUCLOUD@db3/maju-cloud-mariadb
+      - CONNECTION_STRING4=microsoft://admin:MAJUCLOUD@db4/maju-cloud-mssql
+      - CONNECTION_STRING5=oracle://admin:MAJUCLOUD@db5/maju-cloud-oracle
+      
+      
+    depends_on:
+      - db
+      - db2
+      - db3
+      - db4
+      - db5
+
+    networks:
+      - network-backend
+      - network-frontend
+
+  webapp:
+    build: ./frontend
+    environment:
+      - API_URL=http://api:3001/data
+      - API_URL2=http://api:3001/data2
+      - API_URL3=http://api:3001/data3
+      - API_URL4=http://api:3001/data4
+      - API_URL5=http://api:3001/data5
+
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    networks:
+      - network-frontend
+
+  db:
+    image: postgres:11.2-alpine
+    environment:
+      POSTGRES_USER: postgresql
+      POSTGRES_PASSWORD: MAJUCLOUD
+      POSTGRES_DB: maju-cloud-postgresql
+    volumes:
+      - ./database/postgre/:/docker-entrypoint-initdb.d
+    networks:
+      - network-backend
+  db2:
+    image: mysql
+    environment:
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: MAJUCLOUD
+      MYSQL_ROOT_PASSWORD: MAJUCLOUD
+      MYSQL_DB: maju-cloud-db
+    volumes:
+      - ./database/mysql:/docker-entrypoint-initdb.d
+    networks:
+      - network-backend
+
+  db3:
+    image: mariadb
+    environment:
+      MARIADB_USER: admin
+      MARIADB_PASSWORD: MAJUCLOUD
+      MARIADB_DB: maju-cloud-mariadb
+    volumes:
+      - ./database/mariadb/:/docker-entrypoint-initdb.d
+    networks:
+      - network-backend
+
+  db4:
+    image: microsoft
+    environment: 
+      MARIADB_USER: admin
+      MARIADB_PASSWORD: MAJUCLOUD
+      MARIADB_DB: maju-cloud-mssql
+    volumes:
+      - ./database/MS SQL Server/:/docker-entrypoint-initdb.d
+    networks:
+      - network-backend
+
+  db5:
+    image: oracle
+    environment: 
+      MARIADB_USER: admin
+      MARIADB_PASSWORD: MAJUCLOUD
+      MARIADB_DB: maju-cloud-oracle
+    volumes:
+      - ./database/oracle/:/docker-entrypoint-initdb.d
+    networks:
+      - network-backend
+
+networks:
+  network-backend:
+  network-frontend:
